@@ -1,17 +1,23 @@
-import React, { createContext, useState, useEffect, ReactNode, FC, useContext } from 'react';
+// AuthProvider.tsx
+import React, { FC, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-interface AuthContextProps {
-  token: string | null;
-  setToken: (token: string | null) => void;
-  logout: () => void;
-}
-
-export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+import { router } from 'expo-router';
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
+
+interface AuthContextType {
+  token: string | null;
+  setToken: (token: string | null) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+export const AuthContext = React.createContext<AuthContextType>({
+  token: null,
+  setToken: async () => {},
+  logout: async () => {},
+});
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [token, setTokenState] = useState<string | null>(null);
@@ -30,7 +36,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const setToken = async (token: string | null) => {
     if (token) {
       await AsyncStorage.setItem('token', token);
-      console.log("token stored", token);
     } else {
       await AsyncStorage.removeItem('token');
     }
@@ -40,19 +45,18 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     await AsyncStorage.removeItem('token');
     setTokenState(null);
+    router.push('/');
+  };
+
+  const authContextValue: AuthContextType = {
+    token,
+    setToken,
+    logout,
   };
 
   return (
-    <AuthContext.Provider value={{ token, setToken, logout }}>
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
