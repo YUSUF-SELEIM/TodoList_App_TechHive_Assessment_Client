@@ -1,23 +1,26 @@
-import { Link } from 'expo-router';
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable, SafeAreaView, Platform, StatusBar } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from '../AuthProvider';
+import { Link } from 'expo-router';
+import AddTodoModal from '../modal';
+import { IP_ADDRESS } from '@/ip';
 
 const TodosComponent = () => {
   const [todos, setTodos] = useState<{ id: string; title: string; content: string; completed: boolean; }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
   const authContext = useContext(AuthContext);
 
   useEffect(() => {
     if (!authContext?.token) {
-      setLoading(false); // Set loading to false immediately if no token
+      setLoading(false);
       return;
     }
 
     const fetchTodos = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/todos', {
+        const response = await axios.get(`http://${IP_ADDRESS}:3000/todos`, {
           headers: {
             Authorization: `Bearer ${authContext?.token}`,
           },
@@ -33,24 +36,43 @@ const TodosComponent = () => {
     fetchTodos();
   }, [authContext?.token]);
 
+  const handleAddTodo = async (content: string) => {
+    try {
+      const response = await axios.post(
+        `http://${IP_ADDRESS}:3000/todos/add`,
+        { content },
+        {
+          headers: {
+            Authorization: `Bearer ${authContext?.token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setTodos([...todos, response.data]);
+      setModalVisible(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   if (!authContext?.token && !loading) {
     return (
-      <View style={[styles.container, styles.centered]}>
+      <SafeAreaView style={[styles.container, styles.centered]}>
         <Text style={styles.text}>Please <Link href={'/login'}>login</Link> to view todos</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (loading) {
     return (
-      <View style={styles.centered}>
+      <SafeAreaView style={styles.centered}>
         <ActivityIndicator size="large" color="blue" />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Todos</Text>
       <FlatList
         data={todos}
@@ -63,7 +85,15 @@ const TodosComponent = () => {
           </View>
         )}
       />
-    </View>
+      <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+        <Text style={styles.buttonText}>Add To-Do</Text>
+      </Pressable>
+      <AddTodoModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onAdd={handleAddTodo}
+      />
+    </SafeAreaView>
   );
 };
 
@@ -72,6 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   centered: {
     flex: 1,
@@ -93,6 +124,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+  },
+  button: {
+    width: '100%',
+    backgroundColor: '#43CFC6',
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: '#fff',
+    textAlign: 'center',
   },
 });
 
