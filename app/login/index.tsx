@@ -4,26 +4,50 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import images from "@/assets/images/images";
 import { AuthContext } from '../AuthProvider';
+import { IP_ADDRESS } from '@/ip';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const authContext = useContext(AuthContext);
-
   const router = useRouter();
 
+  const validateInputs = () => {
+    let valid = true;
+    const emailRegex = /\S+@\S+\.\S+/;
+
+    if (!emailRegex.test(email)) {
+      setEmailError('Please enter a valid email address');
+      valid = false;
+    } else {
+      setEmailError('');
+    }
+
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
+
+    return valid;
+  };
 
   const login = async () => {
+    if (!validateInputs()) {
+      return;
+    }
+
     try {
-      const response = await axios.post('http://localhost:3000/login',
-        { email, password },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`http://${IP_ADDRESS}:3000/login`, { email, password }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+
       const { token } = response.data;
       console.log("token", token);
       if (authContext) {
@@ -32,31 +56,47 @@ const LoginScreen = () => {
 
       router.push('/todos');
     } catch (error) {
-      console.error(error);
+      console.error('Error logging in:', (error as any)?.response?.data.error);
+      setPasswordError((error as any)?.response?.data.error);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Image
-        source={images.welcome}
-        style={styles.image}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      <Image source={images.welcome} style={styles.image} />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#888888"
+          value={email}
+          onChangeText={(value) => {
+            setEmail(value);
+            if (emailError) {
+              setEmailError('');
+            }
+          }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#888888"
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            if (passwordError) {
+              setPasswordError('');
+            }
+          }}
+          secureTextEntry
+        />
+        {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+      </View>
       <Pressable style={styles.button} onPress={login}>
         <Text style={styles.buttonText}>Login</Text>
       </Pressable>
@@ -78,6 +118,10 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
   },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
   input: {
     width: '100%',
     height: 50,
@@ -85,7 +129,6 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     paddingHorizontal: 15,
-    marginBottom: 20,
     fontSize: 18,
   },
   button: {
@@ -99,6 +142,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     textAlign: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    paddingVertical: 4
   },
 });
 
