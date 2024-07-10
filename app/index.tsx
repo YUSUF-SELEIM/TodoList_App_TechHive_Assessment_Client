@@ -55,15 +55,15 @@ const styles = StyleSheet.create({
     height: 400,
   },
   button: {
-    width: '75%',
-    backgroundColor: '#007AFF', // Example background color
+    width: '100%',
+    backgroundColor: '#43CFC6',
     paddingVertical: 10,
     borderRadius: 8,
     marginBottom: 10,
   },
   buttonText: {
     fontSize: 18,
-    color: '#fff', // Example text color
+    color: '#fff',
     textAlign: 'center',
   },
 });
