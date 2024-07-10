@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { Text, FlatList, ActivityIndicator, StyleSheet, Pressable, SafeAreaView, Platform, StatusBar } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from '../AuthProvider';
 import { Link } from 'expo-router';
@@ -12,26 +12,26 @@ const TodosComponent = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const authContext = useContext(AuthContext);
 
+  const fetchTodos = async () => {
+    try {
+      const response = await axios.get(`http://${IP_ADDRESS}:3000/todos`, {
+        headers: {
+          Authorization: `Bearer ${authContext?.token}`,
+        },
+      });
+      setTodos(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!authContext?.token) {
       setLoading(false);
       return;
     }
-
-    const fetchTodos = async () => {
-      try {
-        const response = await axios.get(`http://${IP_ADDRESS}:3000/todos`, {
-          headers: {
-            Authorization: `Bearer ${authContext?.token}`,
-          },
-        });
-        setTodos(response.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchTodos();
   }, [authContext?.token]);
@@ -53,6 +53,25 @@ const TodosComponent = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleCompleteTodo = async (id: string) => {
+    try {
+      await axios.post(`http://${IP_ADDRESS}:3000/todos/complete/${id}`, {
+        completed: true,
+      }, {
+        headers: {
+          Authorization: `Bearer ${authContext?.token}`,
+        },
+      });
+      fetchTodos(); // Fetch updated todos after marking a todo as complete
+    } catch (error) {
+      console.error('Error marking todo as complete:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    authContext.logout();
   };
 
   if (!authContext?.token && !loading) {
@@ -78,11 +97,13 @@ const TodosComponent = () => {
         data={todos}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.todoItem}>
-            <Text>{item.title}</Text>
-            <Text>{item.content}</Text>
-            <Text>Completed: {item.completed ? 'Yes' : 'No'}</Text>
-          </View>
+          <Pressable
+            style={[styles.todoItem, item.completed && styles.completedTodo]}
+            onPress={() => handleCompleteTodo(item.id)}
+          >
+            <Text style={styles.todoContentCompleted}>{item.content}</Text>
+            {/* <Text>Completed: {item.completed ? 'Yes' : 'No'}</Text> */}
+          </Pressable>
         )}
       />
       <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
@@ -93,6 +114,9 @@ const TodosComponent = () => {
         onClose={() => setModalVisible(false)}
         onAdd={handleAddTodo}
       />
+      <Pressable style={styles.button} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </Pressable>
     </SafeAreaView>
   );
 };
@@ -119,11 +143,22 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   todoItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
     padding: 10,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+  }
+  ,
+  completedTodo: {
+    backgroundColor: '#eee',
+  },
+  todoContentCompleted: {
+    textDecorationLine: 'line-through',
+    color: 'gray'
   },
   button: {
     width: '100%',
