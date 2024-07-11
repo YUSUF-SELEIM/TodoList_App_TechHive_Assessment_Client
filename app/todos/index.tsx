@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, FlatList, ActivityIndicator, StyleSheet, Pressable, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { Text, FlatList, ActivityIndicator, StyleSheet, Pressable, SafeAreaView, View } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from '../AuthProvider';
 import { Link } from 'expo-router';
 import AddTodoModal from '../modal';
+import { Ionicons } from '@expo/vector-icons';
 import { IP_ADDRESS } from '@/ip';
 
 const TodosComponent = () => {
@@ -55,18 +56,18 @@ const TodosComponent = () => {
     }
   };
 
-  const handleCompleteTodo = async (id: string) => {
+  const handleToggleCompleteTodo = async (id: string, completed: boolean) => {
     try {
-      await axios.post(`http://${IP_ADDRESS}:3000/todos/complete/${id}`, {
-        completed: true,
+      await axios.post(`http://${IP_ADDRESS}:3000/todos/toggle-complete/${id}`, {
+        completed: !completed,
       }, {
         headers: {
           Authorization: `Bearer ${authContext?.token}`,
         },
       });
-      fetchTodos(); // Fetch updated todos after marking a todo as complete
+      fetchTodos(); // Fetch updated todos after toggling a todo's completion status
     } catch (error) {
-      console.error('Error marking todo as complete:', error);
+      console.error('Error toggling todo completion status:', error);
     }
   };
 
@@ -92,31 +93,40 @@ const TodosComponent = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Todos</Text>
-      <FlatList
-        data={todos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <Pressable
-            style={[styles.todoItem, item.completed && styles.completedTodo]}
-            onPress={() => handleCompleteTodo(item.id)}
-          >
-            <Text style={styles.todoContentCompleted}>{item.content}</Text>
-            {/* <Text>Completed: {item.completed ? 'Yes' : 'No'}</Text> */}
-          </Pressable>
-        )}
-      />
-      <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
-        <Text style={styles.buttonText}>Add To-Do</Text>
-      </Pressable>
-      <AddTodoModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onAdd={handleAddTodo}
-      />
-      <Pressable style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </Pressable>
+      <View style={styles.container}>
+        <Text style={styles.title}>Todos</Text>
+        <FlatList
+          data={todos}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <Pressable
+              style={[styles.todoItem, item.completed && styles.completedTodo]}
+              onPress={() => handleToggleCompleteTodo(item.id, item.completed)}
+            >
+              <Text style={item.completed ? styles.todoContentCompleted : styles.todoContent}>{item.content}</Text>
+              <View style={styles.iconContainer}>
+                <Pressable onPress={() => console.log('Edit', item.id)}>
+                  <Ionicons name="create-outline" size={24} color="black" />
+                </Pressable>
+                <Pressable onPress={() => console.log('del')}>
+                  <Ionicons name="trash-outline" size={24} color="black" />
+                </Pressable>
+              </View>
+            </Pressable>
+          )}
+        />
+        <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>Add To-Do</Text>
+        </Pressable>
+        <AddTodoModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onAdd={handleAddTodo}
+        />
+        <Pressable style={styles.button} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Logout</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 };
@@ -126,7 +136,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    paddingHorizontal: 10,
+    paddingTop: 10
   },
   centered: {
     flex: 1,
@@ -151,14 +162,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-  }
-  ,
+  },
   completedTodo: {
     backgroundColor: '#eee',
   },
   todoContentCompleted: {
     textDecorationLine: 'line-through',
     color: 'gray'
+  },
+  todoContent: {
+    color: 'black'
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   button: {
     width: '100%',
