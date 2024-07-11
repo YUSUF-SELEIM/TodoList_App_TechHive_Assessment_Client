@@ -4,11 +4,11 @@
     "slug": "Hive_Todo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/Logo.webp",
+    "icon": "./assets/images/Logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/logo.webp",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,14 +17,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/Logo.webp",
+        "foregroundImage": "./assets/images/Logo.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/Logo.webp"
+      "favicon": "./assets/images/Logo.png"
     },
     "plugins": [
       "expo-router"
