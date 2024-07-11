@@ -1,40 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Modal, Dimensions } from 'react-native';
 
 interface AddTodoModalProps {
   visible: boolean;
   onClose: () => void;
   onAdd: (content: string) => void;
+  todo?: { id: string; content: string; completed: boolean } | null;
 }
 
-const AddTodoModal: React.FC<AddTodoModalProps> = ({ visible, onClose, onAdd }) => {
+const AddTodoModal: React.FC<AddTodoModalProps> = ({ visible, onClose, onAdd, todo }) => {
   const [content, setContent] = useState('');
 
-  const handleAddTodo = () => {
+  useEffect(() => {
+    if (todo) {
+      setContent(todo.content);
+    } else {
+      setContent('');
+    }
+  }, [todo]);
+
+  const handleSubmit = () => {
     onAdd(content);
     setContent('');
-    onClose();
   };
 
   return (
     <Modal
-      animationType="slide"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
+      animationType="slide"
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}>Add New Todo</Text>
+          <Text style={styles.modalText}>{todo ? 'Edit To-Do' : 'Add To-Do'}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Clean the Hive"
+            placeholder={todo ? 'Edit To-Do' : 'Clean The Hive'}
             placeholderTextColor="#888888"
             value={content}
             onChangeText={setContent}
           />
-          <Pressable style={styles.button} onPress={handleAddTodo}>
-            <Text style={styles.buttonText}>Add Todo</Text>
+          <Pressable style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>{todo ? 'Update' : 'Add'}</Text>
           </Pressable>
           <Pressable style={[styles.button, styles.cancelButton]} onPress={onClose}>
             <Text style={styles.buttonText}>Cancel</Text>
