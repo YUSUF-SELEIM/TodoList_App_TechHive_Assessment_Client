@@ -2,7 +2,7 @@
 
 ## Frontend
 
-Expo React for mobile development.
+Expo React for mobile development.  
 Typescript
 
 ## Authentication
@@ -13,27 +13,27 @@ JWT Authentication
 
 ### Initial Screen
 
-![alt](/UI_Screenshots/Initial.jpg)
+<img src="/UI_Screenshots/Initial.jpg" width="200"/>
 
 ### Register Screen
 
-![alt](/UI_Screenshots/Register.jpg)
+<img src="/UI_Screenshots/Register.jpg" width="200"/>
 
 ### Login Screen
 
-![alt](/UI_Screenshots/Login.jpg)
+<img src="/UI_Screenshots/Login.jpg" width="200"/>
 
 ### Home Screen
 
-![alt](/UI_Screenshots/Home.jpg)
+<img src="/UI_Screenshots/Home.jpg" width="200"/>
 
 ### Add Todo Screen
 
-![alt](/UI_Screenshots/Add.jpg)
+<img src="/UI_Screenshots/Add.jpg" width="200"/>
 
 ### Update Todo Screen
 
-![alt](/UI_Screenshots/Update.jpg)
+<img src="/UI_Screenshots/Update.jpg" width="200"/>
 
 ## Credits
 
