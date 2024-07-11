@@ -11,6 +11,7 @@ const TodosComponent = () => {
   const [todos, setTodos] = useState<{ id: string; title: string; content: string; completed: boolean; }[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState<{ id: string; title: string; content: string; completed: boolean; } | null>(null);
   const authContext = useContext(AuthContext);
 
   const fetchTodos = async () => {
@@ -37,22 +38,44 @@ const TodosComponent = () => {
     fetchTodos();
   }, [authContext?.token]);
 
-  const handleAddTodo = async (content: string) => {
-    try {
-      const response = await axios.post(
-        `http://${IP_ADDRESS}:3000/todos/add`,
-        { content },
-        {
-          headers: {
-            Authorization: `Bearer ${authContext?.token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setTodos([...todos, response.data]);
-      setModalVisible(false);
-    } catch (error) {
-      console.error(error);
+  const handleAddOrUpdateTodo = async (content: string) => {
+    if (selectedTodo) {
+      // Update existing todo
+      try {
+        const response = await axios.post(
+          `http://${IP_ADDRESS}:3000/todos/update/${selectedTodo.id}`,
+          { content },
+          {
+            headers: {
+              Authorization: `Bearer ${authContext?.token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        setTodos(todos.map(todo => todo.id === selectedTodo.id ? response.data : todo));
+        setModalVisible(false);
+        setSelectedTodo(null);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      // Add new todo
+      try {
+        const response = await axios.post(
+          `http://${IP_ADDRESS}:3000/todos/add`,
+          { content },
+          {
+            headers: {
+              Authorization: `Bearer ${authContext?.token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        setTodos([...todos, response.data]);
+        setModalVisible(false);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -65,9 +88,22 @@ const TodosComponent = () => {
           Authorization: `Bearer ${authContext?.token}`,
         },
       });
-      fetchTodos(); // Fetch updated todos after toggling a todo's completion status
+      fetchTodos(); //refetch
     } catch (error) {
       console.error('Error toggling todo completion status:', error);
+    }
+  };
+
+  const handleDeleteTodo = async (id: string) => {
+    try {
+      await axios.delete(`http://${IP_ADDRESS}:3000/todos/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${authContext?.token}`,
+        },
+      });
+      fetchTodos(); // refetch
+    } catch (error) {
+      console.error('Error deleting todo:', error);
     }
   };
 
@@ -105,23 +141,30 @@ const TodosComponent = () => {
             >
               <Text style={item.completed ? styles.todoContentCompleted : styles.todoContent}>{item.content}</Text>
               <View style={styles.iconContainer}>
-                <Pressable onPress={() => console.log('Edit', item.id)}>
+                <Pressable onPress={() => {
+                  setSelectedTodo(item);
+                  setModalVisible(true);
+                }}>
                   <Ionicons name="create-outline" size={24} color="black" />
                 </Pressable>
-                <Pressable onPress={() => console.log('del')}>
+                <Pressable onPress={() => handleDeleteTodo(item.id)}>
                   <Ionicons name="trash-outline" size={24} color="black" />
                 </Pressable>
               </View>
             </Pressable>
           )}
         />
-        <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+        <Pressable style={styles.button} onPress={() => {
+          setSelectedTodo(null);
+          setModalVisible(true);
+        }}>
           <Text style={styles.buttonText}>Add To-Do</Text>
         </Pressable>
         <AddTodoModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
-          onAdd={handleAddTodo}
+          onAdd={handleAddOrUpdateTodo}
+          todo={selectedTodo}
         />
         <Pressable style={styles.button} onPress={handleLogout}>
           <Text style={styles.buttonText}>Logout</Text>
