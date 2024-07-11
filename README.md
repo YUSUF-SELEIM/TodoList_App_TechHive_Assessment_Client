@@ -13,27 +13,27 @@ JWT Authentication
 
 ### Initial Screen
 
-![alt](https://drive.google.com/drive/u/1/folders/1JPwYtNueOrZ710AaO1FUg8IJN-NV0qoy)
+![alt](/UI_Screenshots/Initial.jpg)
 
 ### Register Screen
 
-![alt](https://drive.google.com/drive/u/1/folders/1JPwYtNueOrZ710AaO1FUg8IJN-NV0qoy)
+![alt](/UI_Screenshots/Register.jpg)
 
 ### Login Screen
 
-![alt](https://drive.google.com/drive/u/1/folders/1JPwYtNueOrZ710AaO1FUg8IJN-NV0qoy)
+![alt](/UI_Screenshots/Login.jpg)
 
 ### Home Screen
 
-![alt](https://drive.google.com/drive/u/1/folders/1JPwYtNueOrZ710AaO1FUg8IJN-NV0qoy)
+![alt](/UI_Screenshots/Home.jpg)
 
 ### Add Todo Screen
 
-![alt](https://drive.google.com/drive/u/1/folders/1JPwYtNueOrZ710AaO1FUg8IJN-NV0qoy)
+![alt](/UI_Screenshots/Add.jpg)
 
 ### Update Todo Screen
 
-![alt](https://drive.google.com/drive/u/1/folders/1JPwYtNueOrZ710AaO1FUg8IJN-NV0qoy)
+![alt](/UI_Screenshots/Update.jpg)
 
 ## Credits
 
