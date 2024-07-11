@@ -10,7 +10,7 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.text}>Welcome to Hive Tasks</Text>
+        <Text style={styles.text}>Hive Tasks</Text>
         <Image source={{ uri: `https://wsrv.nl/?url=${images.logo}` }} style={styles.image} />
         <Pressable style={styles.button} onPress={() => router.push('/login')}>
           <Text style={styles.buttonText}>Login</Text>
@@ -41,15 +41,16 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   text: {
-    fontSize: 28,
+    fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 60,
     textAlign: 'center',
     color: '#333',
   },
   image: {
-    width: 50,
-    height: 50,
+    width: 200,
+    height: 200,
+    marginBottom: 60,
   },
   button: {
     width: '100%',
