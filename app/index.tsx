@@ -11,10 +11,7 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.text}>Welcome to Hive Tasks</Text>
-        <Image
-          source={images.welcome}
-          style={styles.image}
-        />
+        <Image source={{ uri: `https://wsrv.nl/?url=${images.logo}` }} style={styles.image} />
         <Pressable style={styles.button} onPress={() => router.push('/login')}>
           <Text style={styles.buttonText}>Login</Text>
         </Pressable>
@@ -51,8 +48,8 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   image: {
-    width: 400,
-    height: 400,
+    width: 50,
+    height: 50,
   },
   button: {
     width: '100%',

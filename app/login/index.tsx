@@ -63,7 +63,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={images.welcome} style={styles.image} />
+      <Image source={{ uri: `https://wsrv.nl/?url=${images.auth}` }} style={styles.image} />
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
